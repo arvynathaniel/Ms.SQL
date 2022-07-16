@@ -44,8 +44,8 @@ SELECT
 FROM Superstore_Sales
 GROUP BY Segment
 ORDER BY Segment;
--- 2. Who are the top 10 customers?
-SELECT TOP 10
+-- 2. Who are the top 20 customers?
+SELECT TOP 20
 	[Customer ID],
 	[Customer Name],
 	[Segment],
@@ -53,25 +53,35 @@ SELECT TOP 10
 FROM Superstore_Sales
 GROUP BY [Customer ID], [Customer Name], [Segment]
 ORDER BY [Sales ($)] DESC;
--- 3. How is the sales of the top 10 customers compared to the rest of the other customers?
+-- 3. Who are the most loyal customers that frequently make repeat orders?
+SELECT TOP 20
+	[Customer ID],
+	[Customer Name],
+	[Segment],
+	COUNT(Sales) AS [Order Count],
+	SUM(Sales) AS [Sales ($)]
+FROM Superstore_Sales
+GROUP BY [Customer ID], [Customer Name], [Segment]
+ORDER BY [Order Count] DESC;
+-- 4. How is the sales of the top 50 customers compared to the rest of the other customers?
 SELECT
-	SUM([Sales ($)]) AS [Sales of Top 10 Customers]
-	FROM (SELECT TOP 10 
+	SUM([Sales ($)]) AS [Sales of Top 50 Customers]
+	FROM (SELECT TOP 50 
 			  [Customer Name], 
 			  SUM(Sales) AS [Sales ($)] 
 		  FROM Superstore_Sales 
 		  GROUP BY [Customer Name] 
 		  ORDER BY [Sales ($)]  DESC) AS Ref1;
 SELECT 
-	SUM([Sales ($)]) AS [Sales of Non-Top 10 Customers]
+	SUM([Sales ($)]) AS [Sales of Non-Top 50 Customers]
 	FROM (SELECT 
 			  [Customer Name], 
 			  SUM(Sales) AS [Sales ($)]  
 		  FROM Superstore_Sales 
 		  GROUP BY [Customer Name] 
 		  ORDER BY [Sales ($)]  DESC
-		  OFFSET 10 ROWS
-		  FETCH NEXT ((SELECT COUNT(Sales) FROM Superstore_Sales) - 10) ROWS ONLY) AS Ref2;
+		  OFFSET 50 ROWS
+		  FETCH NEXT ((SELECT COUNT(Sales) FROM Superstore_Sales) - 50) ROWS ONLY) AS Ref2;
 --
 -- C. Product performance:
 -- 1. How many products are there?
@@ -94,7 +104,7 @@ SELECT TOP 10
 FROM Superstore_Sales
 GROUP BY Category
 ORDER BY [Sales ($)] DESC;
--- 4. What are the top 10 best performing sub-category in term of sales
+-- 4. What are the top 10 best performing sub-category in term of sales?
 SELECT TOP 10
 	[Sub-Category],
 	Category,
@@ -143,8 +153,17 @@ SELECT TOP 10
 FROM Superstore_Sales
 GROUP BY [State]
 ORDER BY [Sales ($)] DESC;
-	
--- 4. What are the top cities of each state in term of sales?
+-- 4. Where do orders are made the most?
+SELECT TOP 10
+	[City],
+	[State],
+	[Region],
+	COUNT([Sales]) AS [Orders Count]
+FROM Superstore_Sales
+WHERE [Segment] = 'Consumer'
+GROUP BY [City], [State], [Region]
+ORDER BY [Orders Count] DESC;
+-- 5. What are the top cities of each state in term of sales?
 SELECT
 	[State],
 	City,
@@ -251,30 +270,7 @@ WHERE Segment = 'Consumer'
 GROUP BY [Ship Mode]
 ORDER BY [Count] DESC;
 --
--- D. Area vs Shipment
---
--- D. Area vs. Customer
--- 1. How is the customer segment distributed across the states?
-SELECT
-	[Segment],
-	[Region],
-	[State],
-	COUNT([State]) AS [Count]
-FROM Superstore_Sales
-GROUP BY [Segment], [Region], [State]
-ORDER BY [Segment], [Region], [Count] DESC;
--- 2. Where do 'Consumer's reside in the most?
-SELECT TOP 10
-	[City],
-	[State],
-	[Region],
-	COUNT([Segment]) AS ['Consumer' Count]
-FROM Superstore_Sales
-WHERE [Segment] = 'Consumer'
-GROUP BY [City], [State], [Region]
-ORDER BY ['Consumer' Count] DESC;
---
--- E. Area vs. Product
+-- D. Area vs. Product
 -- 1. What are three best-performing products in each of the top 5 best performing states?
 SELECT TOP 5
 		[State],
