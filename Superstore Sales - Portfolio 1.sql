@@ -342,4 +342,4 @@ WHERE rn = 1;
 -- insights, which unfortunately is not readily available right now. 
 --
 -- The data visualization of this Superstore Sales dataset is done using Tableau Public, with the link:
--- (in progress)
+-- https://public.tableau.com/views/SuperstoreSalesCustomer/Product?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link
